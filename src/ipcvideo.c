@@ -385,7 +385,7 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 			md->stats.in.FPS,
 			md->stats.in.latencyMs,
 			md->stats.in.starvation);
-		ret = ipcvideo_display_render_string(&dctx, str, strlen(str), 0, 10);
+		ret = ipcvideo_display_render_string(&dctx, (unsigned char*)str, strlen(str), 0, 10);
 		if (KLAPI_FAILED(ret))
 			break;
 
@@ -394,7 +394,7 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 			md->stats.out.FPS,
 			md->stats.out.latencyMs,
 			md->stats.out.starvation);
-		ret = ipcvideo_display_render_string(&dctx, str, strlen(str), 0, 11);
+		ret = ipcvideo_display_render_string(&dctx, (unsigned char*)str, strlen(str), 0, 11);
 		if (KLAPI_FAILED(ret))
 			break;
 
@@ -665,6 +665,7 @@ int ipcvideo_dump_buffers(struct ipcvideo_s *ctx)
 		
 		ipcvideo_dump_buffer(ctx, buf);
 	}
+	return KLAPI_OK;
 }
 
 int ipcvideo_list_busy_isempty(struct ipcvideo_s *ctx, int *empty)

@@ -28,6 +28,8 @@ int fifo_main(int argc, char *argv[])
 	while (!ipcfifo_isempty(&fifo)) {
 		printf("%d\n", ipcfifo_pop(&fifo));
 	}
+
+	return 0;
 }
 
 int producer_main(int argc, char *argv[])

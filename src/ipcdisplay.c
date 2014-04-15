@@ -1268,7 +1268,7 @@ int ipcvideo_display_render_string(struct ipcvideo_display_context *ctx, unsigne
 	if ((!ctx) || (!s) || (len > 80) || (x > 24) || (y > 24))
 		return KLAPI_INVALID_ARG;
 
-	for (int i = 0; i < len; i++)
+	for (unsigned i = 0; i < len; i++)
 		ipcvideo_display_render_ascii(ctx, *(s + i), x + i, y);
 
 	return KLAPI_OK;

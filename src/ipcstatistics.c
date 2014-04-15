@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ipcstatistics.h"
+#include <libipcvideo/ipcstatistics.h>
 
 void ipcstatistics_reset(struct ipcvideo_statistics_s *stats)
 {

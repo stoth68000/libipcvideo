@@ -2,7 +2,11 @@ noinst_PROGRAMS = producer-demo metadata-demo fifo-demo consumer-demo
 lib_LTLIBRARIES = libipcvideo.la
 
 libipcvideo_includedir = $(includedir)/libipcvideo
-libipcvideo_include_HEADERS = ipcvideo.h ipcfifo.h ipcstatistics.h ipcdisplay.h
+libipcvideo_include_HEADERS = \
+	libipcvideo/ipcvideo.h \
+	libipcvideo/ipcfifo.h \
+	libipcvideo/ipcstatistics.h \
+	libipcvideo/ipcdisplay.h
 
 libipcvideo_la_SOURCES = \
 	ipcfifo.c \

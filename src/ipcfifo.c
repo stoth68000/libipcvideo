@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ipcfifo.h"
+#include <libipcvideo/ipcfifo.h>
 
 void ipcfifo_init(struct ipcvideo_fifo_s *list)
 {

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/errno.h>
 
-#include "ipcdisplay.h"
+#include <libipcvideo/ipcdisplay.h>
 
 #define ALPHA_BACKGROUND 0
 

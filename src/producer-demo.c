@@ -225,16 +225,16 @@ out:
 
 int main(int argc, char *argv[])
 {
-	if ((strcmp(argv[0], "producer-demo") == 0) || (strcmp(argv[0], "./producer-demo") == 0))
+	if (strstr(argv[0], "producer-demo"))
 		return producer_main(argc, argv);
 	else
-	if ((strcmp(argv[0], "consumer-demo") == 0) || (strcmp(argv[0], "./consumer-demo") == 0))
+	if (strstr(argv[0], "consumer-demo"))
 		return consumer_main(argc, argv);
 	else
-	if ((strcmp(argv[0], "fifo-demo") == 0) || (strcmp(argv[0], "./fifo-demo") == 0))
+	if (strstr(argv[0], "fifo-demo"))
 		return fifo_main(argc, argv);
 	else
-		printf("What?\n");
+		printf("What? [%s]\n", argv[0]);
 
 	return -1;
 }

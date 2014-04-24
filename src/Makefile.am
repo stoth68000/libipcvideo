@@ -1,4 +1,4 @@
-noinst_PROGRAMS = producer-demo metadata-demo fifo-demo consumer-demo
+bin_PROGRAMS = producer-demo metadata-demo fifo-demo consumer-demo
 lib_LTLIBRARIES = libipcvideo.la
 
 libipcvideo_includedir = $(includedir)/libipcvideo

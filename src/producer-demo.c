@@ -46,25 +46,19 @@ int producer_main(int argc, char *argv[])
 
 	ipcvideo_dump_context(ctx);
 
-	/* Attach to a segment, get its working dimensions */
+	/* Create the dimensions and segment, we're the producer */
 	struct ipcvideo_dimensions_s d;
-	ret = ipcvideo_context_attach(ctx, 1999, "/tmp", &d);
+	d.width = 1280;
+	d.height = 768;
+	d.depth = 4;
+	d.stride = d.width;
+	d.fourcc = IPCFOURCC_YUYV;
+	ret = ipcvideo_context_prepare(ctx, 1999, "/tmp", &d, 4);
 	if (KLAPI_FAILED(ret)) {
-		printf("Unable to attach to segment, creating it.\n");
-
-		/* Create the dimensions and segment */
-		d.width = 1280;
-		d.height = 768;
-		d.depth = 4;
-		d.stride = d.width;
-		d.fourcc = IPCFOURCC_YUYV;
-		ret = ipcvideo_context_prepare(ctx, 1999, "/tmp", &d, 4);
-		if (KLAPI_FAILED(ret)) {
-			printf("Unable to prepare segment err = %d, aborting.\n", ret);
-			if (ret == KLAPI_NO_RESOURCE)
-				printf("Increase shmax is larger enough to hold all your buffers\n");
-			goto out;
-		}
+		printf("Unable to prepare segment err = %d, aborting.\n", ret);
+		if (ret == KLAPI_NO_RESOURCE)
+			printf("Increase shmax is larger enough to hold all your buffers\n");
+		goto out;
 	}
 
 	ipcvideo_dump_context(ctx);

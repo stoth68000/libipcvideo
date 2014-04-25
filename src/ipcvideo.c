@@ -211,6 +211,31 @@ int ipcvideo_context_detach(struct ipcvideo_s *ctx)
 	return KLAPI_OK;
 }
 
+static void ipcvideo_context_force_removal(struct ipcvideo_s *ctx, int id, const char *path)
+{
+	/* Destroy the metadata, we cannot trust any of its content */
+	key_t k = ftok(path, id);
+	if (k != -1) {
+		/* Get the existing segment */
+		int shmid = shmget(k, 0, 0);
+		if (shmid != -1) {
+			/* Destroy it */
+			shmctl(shmid, IPC_RMID, 0);
+		}
+	}
+
+	/* Destroy the buffers */
+	key_t k2 = ftok(path, id + 1);
+	if (k2 != -1) {
+		/* destroy a new segment for all the pixel data and a buffer header for each */
+		int shmid = shmget(k2, 0, 0);
+		if (shmid != -1) {
+			/* Destroy it */
+			shmctl(shmid, IPC_RMID, 0);
+		}
+	}
+}
+
 /* Allocate a new metadata segment, fill in th details, then allocate all the buffers.
  * in a seperate segment.
  */
@@ -239,6 +264,13 @@ int ipcvideo_context_prepare(struct ipcvideo_s *ctx, int id, const char *path, s
 
 	if (ctx->md)
 		return KLAPI_BUSY;
+
+	/* Design rule:
+	 * 1. Consumer will never be runing or be attached to the segments before the producer.
+	 *    runit will take care of destroying the consumer if the producer terminates.
+	 * 2. Destroy all segments prior to the producer creating them (in case of rare corruption).
+	 */
+	ipcvideo_context_force_removal(ctx, id, path);
 
 	key_t k = ftok(path, id);
 	if (k == -1)

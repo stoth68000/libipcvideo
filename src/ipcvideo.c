@@ -416,7 +416,7 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 			break;
 
 		char str[256];
-		sprintf(str, "in#: %lld fps: %d ms: %d orun: %lld",
+		sprintf(str, "in#: %3lld fps: %3d ms: %3d orun: %3lld",
 			md->stats.in.totalFrames,
 			md->stats.in.FPS,
 			md->stats.in.latencyMs,
@@ -425,7 +425,7 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 		if (KLAPI_FAILED(ret))
 			break;
 
-		sprintf(str, "out#: %lld fps: %d ms: %d urun: %lld",
+		sprintf(str, "out#: %3lld fps: %3d ms: %3d urun: %3lld",
 			md->stats.out.totalFrames,
 			md->stats.out.FPS,
 			md->stats.out.latencyMs,

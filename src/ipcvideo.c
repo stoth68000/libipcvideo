@@ -396,6 +396,9 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 		if (!(md->flags & MD_FLAGS_ENABLE_OSD))
 			break;
 
+		if (md->dimensions.fourcc != IPCFOURCC_YUYV)
+			break;
+
 		struct ipcvideo_display_context dctx;
 		int ret;
 		ret = ipcvideo_display_init(&dctx);
@@ -751,6 +754,9 @@ int ipcvideo_metadata_set_osd(struct ipcvideo_s *ctx, int enable)
 	struct ipcvideo_md_s *md = getMetadata(ctx);
 	if (!md)
 		return KLAPI_NOT_INITIALIZED;
+
+	if (md->dimensions.fourcc != IPCFOURCC_YUYV)
+		return KLAPI_ERROR;
 
 	if (enable)
 		md->flags |= MD_FLAGS_ENABLE_OSD;

@@ -28,6 +28,7 @@
 #define KLAPI_TIMEOUT		-6
 
 #define IPCFOURCC_YUYV 0x59555956
+#define IPCFOURCC_BGRX 0x42475258
 
 struct ipcvideo_buffer_s;
 

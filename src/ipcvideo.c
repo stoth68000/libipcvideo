@@ -65,6 +65,7 @@ static int isValidFourCC(unsigned int fourcc)
 {
 	switch(fourcc) {
 	case IPCFOURCC_YUYV:
+	case IPCFOURCC_BGRX:
 		return 1;
 	default:
 		return 0;

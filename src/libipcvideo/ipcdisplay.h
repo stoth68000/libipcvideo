@@ -18,6 +18,11 @@ struct ipcvideo_display_context
 	unsigned char *frame;
 
 	unsigned char bg[2], fg[2];
+
+	enum {
+		MODE_YUY2,
+		MODE_BGRX,
+	} mode;
 };
 
 int ipcvideo_display_init(struct ipcvideo_display_context *ctx);

@@ -1176,6 +1176,7 @@ int ipcvideo_display_init(struct ipcvideo_display_context *ctx)
 
 	ctx->currx = 0;
 	ctx->curry = 0;
+	ctx->mode = MODE_YUY2;
 
 	return 0;
 }
@@ -1258,7 +1259,9 @@ static int ipcvideo_display_render_ascii(struct ipcvideo_display_context *ctx, u
 		return KLAPI_INVALID_ARG;
 
 	ipcvideo_display_render_moveto(ctx, x, y);
-	ipcvideo_display_render_character_yuy2(ctx, letter);
+
+	if (ctx->mode == MODE_YUY2)
+		ipcvideo_display_render_character_yuy2(ctx, letter);
 
 	return KLAPI_OK;
 }

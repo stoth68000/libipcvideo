@@ -1198,7 +1198,7 @@ static int ipcvideo_display_render_moveto(struct ipcvideo_display_context *ctx, 
 	return 0;
 }
 
-static int ipcvideo_display_render_character(struct ipcvideo_display_context *ctx, unsigned char letter)
+static int ipcvideo_display_render_character_yuy2(struct ipcvideo_display_context *ctx, unsigned char letter)
 {
 	unsigned char line;
 
@@ -1258,7 +1258,7 @@ static int ipcvideo_display_render_ascii(struct ipcvideo_display_context *ctx, u
 		return KLAPI_INVALID_ARG;
 
 	ipcvideo_display_render_moveto(ctx, x, y);
-	ipcvideo_display_render_character(ctx, letter);
+	ipcvideo_display_render_character_yuy2(ctx, letter);
 
 	return KLAPI_OK;
 }

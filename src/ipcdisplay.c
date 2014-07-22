@@ -1167,7 +1167,7 @@ static struct letter_t {
  /* 00000000 */
 };
 
-int ipcvideo_display_init(struct ipcvideo_display_context *ctx)
+int ipcvideo_display_init(struct ipcvideo_display_context *ctx, unsigned int mode)
 {
 	memset(ctx, 0, sizeof(*ctx));
 	
@@ -1176,7 +1176,7 @@ int ipcvideo_display_init(struct ipcvideo_display_context *ctx)
 
 	ctx->currx = 0;
 	ctx->curry = 0;
-	ctx->mode = MODE_YUY2;
+	ctx->mode = mode;
 
 	return 0;
 }
@@ -1184,7 +1184,12 @@ int ipcvideo_display_init(struct ipcvideo_display_context *ctx)
 static int ipcvideo_display_render_moveto(struct ipcvideo_display_context *ctx, int x, int y)
 {
 	ctx->ptr = ctx->frame + (x * (ctx->plotwidth * 2));
-	ctx->ptr += ((y * (ctx->stride * 2)) * ctx->plotheight);
+
+	if (ctx->mode == IPCFOURCC_YUYV)
+		ctx->ptr += ((y * (ctx->stride * 2)) * ctx->plotheight);
+	else
+	if (ctx->mode == IPCFOURCC_BGRX)
+		ctx->ptr += ((y * (ctx->stride * 4)) * ctx->plotheight);
 
 	ctx->currx = x;
 	ctx->curry = y;
@@ -1253,6 +1258,58 @@ static int ipcvideo_display_render_character_yuy2(struct ipcvideo_display_contex
 	return 0;
 }
 
+static int ipcvideo_display_render_character_bgrx(struct ipcvideo_display_context *ctx, unsigned char letter)
+{
+	unsigned char line;
+
+	if (letter > 0x9f)
+		return KLAPI_INVALID_ARG;
+
+	/* for each line in the letter */
+	for (int i = 0; i < 8; i++) {
+	
+		int k = 0;
+		while (k++ < 4) {
+			line = charset[ letter ].data[ i ];
+
+			/* For each pixel on this line.... */
+			for (int j = 0; j < 8; j++) {
+				if (line & 0x80) {
+					/* For each pixel in the line, draw 8 pixels out (enlarge font) */
+					for (int z = 0; z < 2; z++) {
+						/* font color */
+						*(ctx->ptr + (z * 4) + 0) = ctx->fg[0]; // B
+						*(ctx->ptr + (z * 4) + 1) = ctx->fg[0]; // G
+						*(ctx->ptr + (z * 4) + 2) = ctx->fg[0]; // R
+						*(ctx->ptr + (z * 4) + 3) = 0xff;       // X
+					}
+	
+				} else {
+					/* background color */
+#if ALPHA_BACKGROUND
+#else
+					/* Complete black background */
+					for (int z = 0; z < 2; z++) {
+						/* font color */
+						*(ctx->ptr + (z * 4) + 0) = ctx->bg[0]; // B
+						*(ctx->ptr + (z * 4) + 1) = ctx->bg[0]; // G
+						*(ctx->ptr + (z * 4) + 2) = ctx->bg[0]; // R
+						*(ctx->ptr + (z * 4) + 3) = 0xff;       // X
+					}
+#endif
+				}
+
+				ctx->ptr += (2 * 4); // 2 x pixels (4 bytes per color)
+				line <<= 1;
+			}
+			ctx->ptr += ((ctx->stride * 4) - (8 * 4 * 2));
+		}
+	}
+
+	return 0;
+}
+
+
 static int ipcvideo_display_render_ascii(struct ipcvideo_display_context *ctx, unsigned char letter, int x, int y)
 {
 	if (letter > 0x9f)
@@ -1260,8 +1317,11 @@ static int ipcvideo_display_render_ascii(struct ipcvideo_display_context *ctx, u
 
 	ipcvideo_display_render_moveto(ctx, x, y);
 
-	if (ctx->mode == MODE_YUY2)
+	if (ctx->mode == IPCFOURCC_YUYV)
 		ipcvideo_display_render_character_yuy2(ctx, letter);
+	else
+	if (ctx->mode == IPCFOURCC_BGRX)
+		ipcvideo_display_render_character_bgrx(ctx, letter);
 
 	return KLAPI_OK;
 }
@@ -1279,15 +1339,31 @@ int ipcvideo_display_render_string(struct ipcvideo_display_context *ctx, unsigne
 
 int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned char *ptr, unsigned int stride)
 {
+	unsigned int strides[] = {
+		720 * 2, 1280 * 2, 1920 * 2, /* YUYV */
+		720 * 4, 1280 * 4, 1920 * 4, /* BGRX */
+	};
+
 	if ((!ctx) || (!ptr))
 		return KLAPI_INVALID_ARG;
 
-	if ((stride != (720 * 2)) && (stride != (1280 * 2)) && (stride != (1920 * 2)))
+	int found = 0;
+	for (unsigned int i = 0; i < (sizeof(strides) / sizeof(unsigned int)); i++) {
+		if (strides[i] == stride) {
+			found = 1;
+			break;
+		}
+	}
+	if (!found)
 		return KLAPI_INVALID_ARG;
 
 	ctx->ptr = ptr;
 	ctx->frame = ptr;
-	ctx->stride = stride / 2;
+	if (ctx->mode == IPCFOURCC_YUYV) 
+		ctx->stride = stride / 2;
+	else
+	if (ctx->mode == IPCFOURCC_BGRX)
+		ctx->stride = stride / 4;
 
 	ipcvideo_display_render_moveto(ctx, 0, 0);
 

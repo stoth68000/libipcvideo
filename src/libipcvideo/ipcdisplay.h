@@ -19,13 +19,10 @@ struct ipcvideo_display_context
 
 	unsigned char bg[2], fg[2];
 
-	enum {
-		MODE_YUY2,
-		MODE_BGRX,
-	} mode;
+	unsigned int mode;
 };
 
-int ipcvideo_display_init(struct ipcvideo_display_context *ctx);
+int ipcvideo_display_init(struct ipcvideo_display_context *ctx, unsigned int mode);
 int ipcvideo_display_render_string(struct ipcvideo_display_context *ctx, unsigned char *s, unsigned int len, unsigned int x, unsigned int y);
 int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned char *ptr, unsigned int stride);
 

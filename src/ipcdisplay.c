@@ -1190,6 +1190,9 @@ static int ipcvideo_display_render_moveto(struct ipcvideo_display_context *ctx, 
 	else
 	if (ctx->mode == IPCFOURCC_BGRX)
 		ctx->ptr += ((y * (ctx->stride * 4)) * ctx->plotheight);
+	else
+	if (ctx->mode == IPCFOURCC_I420)
+		ctx->ptr += ((y * (ctx->stride * 1)) * ctx->plotheight);
 
 	ctx->currx = x;
 	ctx->curry = y;
@@ -1322,6 +1325,9 @@ static int ipcvideo_display_render_ascii(struct ipcvideo_display_context *ctx, u
 	else
 	if (ctx->mode == IPCFOURCC_BGRX)
 		ipcvideo_display_render_character_bgrx(ctx, letter);
+	else
+	if (ctx->mode == IPCFOURCC_I420)
+		ipcvideo_display_render_character_bgrx(ctx, letter);
 
 	return KLAPI_OK;
 }
@@ -1342,6 +1348,7 @@ int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned
 	unsigned int strides[] = {
 		720 * 2, 1280 * 2, 1920 * 2, /* YUYV */
 		720 * 4, 1280 * 4, 1920 * 4, /* BGRX */
+		720 * 1, 1280 * 1, 1920 * 1, /* I420 */
 	};
 
 	if ((!ctx) || (!ptr))
@@ -1364,6 +1371,9 @@ int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned
 	else
 	if (ctx->mode == IPCFOURCC_BGRX)
 		ctx->stride = stride / 4;
+	else
+	if (ctx->mode == IPCFOURCC_I420)
+		ctx->stride = stride;
 
 	ipcvideo_display_render_moveto(ctx, 0, 0);
 

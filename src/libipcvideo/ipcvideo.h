@@ -29,6 +29,7 @@
 
 #define IPCFOURCC_YUYV 0x59555956
 #define IPCFOURCC_BGRX 0x42475258
+#define IPCFOURCC_I420 0x49343230
 
 struct ipcvideo_buffer_s;
 

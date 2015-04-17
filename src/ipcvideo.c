@@ -66,6 +66,7 @@ static int isValidFourCC(unsigned int fourcc)
 	switch(fourcc) {
 	case IPCFOURCC_YUYV:
 	case IPCFOURCC_BGRX:
+	case IPCFOURCC_I420:
 		return 1;
 	default:
 		return 0;
@@ -299,7 +300,15 @@ int ipcvideo_context_prepare(struct ipcvideo_s *ctx, int id, const char *path, s
 	md->users = 1;
 	memcpy(&md->dimensions, dimensions, sizeof(md->dimensions));
 	md->buffers = buffers;
-	md->buflen = dimensions->width * dimensions->height * dimensions->depth;
+	if (dimensions->fourcc == IPCFOURCC_I420) {
+		/* Y */
+		md->buflen  = dimensions->width * dimensions->height;
+
+		/* U + V */
+		md->buflen += ((md->buflen / 4) * 2);
+	} else
+		md->buflen = dimensions->width * dimensions->height * dimensions->depth;
+
 	ipcfifo_init(&md->freeList);
 	ipcfifo_init(&md->busyList);
 	ipcstatistics_reset(&md->stats);
@@ -752,7 +761,7 @@ int ipcvideo_metadata_set_osd(struct ipcvideo_s *ctx, int enable)
 	if (!md)
 		return KLAPI_NOT_INITIALIZED;
 
-	if ((md->dimensions.fourcc != IPCFOURCC_YUYV) && (md->dimensions.fourcc != IPCFOURCC_BGRX))
+	if (!isValidFourCC(md->dimensions.fourcc))
 		return KLAPI_ERROR;
 
 	if (enable)

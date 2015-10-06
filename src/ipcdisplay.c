@@ -1345,23 +1345,7 @@ int ipcvideo_display_render_string(struct ipcvideo_display_context *ctx, unsigne
 
 int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned char *ptr, unsigned int stride)
 {
-	unsigned int strides[] = {
-		720 * 2, 1280 * 2, 1920 * 2, 1248 * 2, /* YUYV */
-		720 * 4, 1280 * 4, 1920 * 4, 1248 * 4, /* BGRX */
-		720 * 1, 1280 * 1, 1920 * 1, 1248 * 1, /* I420 */
-	};
-
-	if ((!ctx) || (!ptr))
-		return KLAPI_INVALID_ARG;
-
-	int found = 0;
-	for (unsigned int i = 0; i < (sizeof(strides) / sizeof(unsigned int)); i++) {
-		if (strides[i] == stride) {
-			found = 1;
-			break;
-		}
-	}
-	if (!found)
+	if ((!ctx) || (!ptr) || (stride < (720 * 1)) || (stride > (1920 * 4)))
 		return KLAPI_INVALID_ARG;
 
 	ctx->ptr = ptr;
@@ -1379,4 +1363,3 @@ int ipcvideo_display_render_reset(struct ipcvideo_display_context *ctx, unsigned
 
 	return KLAPI_OK;
 }
-

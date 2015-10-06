@@ -13,6 +13,8 @@ void ipcstatistics_reset(struct ipcvideo_statistics_s *stats)
 
 	stats->out.totalFrames = 0;
 	stats->out.starvation = 0;
+
+	stats->lost_recycled = 0;
 }
 
 static void measureBegin(struct ipcvideo_statistics_s *stats, int slotnr)

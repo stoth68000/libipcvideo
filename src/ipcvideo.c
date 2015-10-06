@@ -22,8 +22,10 @@ struct ipcvideo_buffer_s {
 	enum {
 		BUF_UNDEFINED = 0,
 		BUF_FREE,
-		BUF_BUSY
+		BUF_BUSY,
+		BUF_LOST,
 	} state;
+	struct timespec tv_dequeue;
 } __attribute__ ((__packed__));
 
 struct ipcvideo_md_s {
@@ -548,6 +550,33 @@ int ipcvideo_list_free_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 	return KLAPI_OK;
 }
 
+/* This MUST be called with the mutex taken */
+static void ipcvideo_list_coalesce(struct ipcvideo_s *ctx, struct ipcvideo_md_s *md)
+{
+	for (unsigned int i = 0; i < md->buffers; i++) {
+		struct ipcvideo_buffer_s *buf = 0;
+		int ret = ipcvideo_buffer_get_header(ctx, i, &buf);
+		if (KLAPI_FAILED(ret)) {
+			/* err */
+			continue;
+		}
+
+		if (buf->state != BUF_LOST)
+			continue;
+
+		struct timespec now;
+		timespec_add_ms(&now, 0);
+
+		if (!TIMESPEC_AFTER(now, buf->tv_dequeue))
+			continue;
+
+		buf->state = BUF_FREE;
+		ipcfifo_push(&md->freeList, buf->nr);
+
+		md->stats.lost_recycled++;
+	}
+}
+
 int ipcvideo_list_dequeue(struct ipcvideo_s *ctx, struct ipcvideo_fifo_s *list, struct ipcvideo_buffer_s **buf)
 {
 	struct ipcvideo_buffer_s *b = 0;
@@ -560,9 +589,20 @@ int ipcvideo_list_dequeue(struct ipcvideo_s *ctx, struct ipcvideo_fifo_s *list, 
 		return KLAPI_NOT_INITIALIZED;
 
 	pthread_mutex_lock(&md->lockList);
+
+	/* If the lists have lost buffers, re-create the lists */
+	ipcvideo_list_coalesce(ctx, md);
+
 	if (!ipcfifo_isempty(list)) {
 		unsigned int nr = ipcfifo_pop(list);
 		ipcvideo_buffer_get_header(ctx, nr, &b);
+		b->state = BUF_LOST;
+
+		/* Put an expiration on this buffer, 3000ms.
+		 * Its considered LOST by default and will
+		 * be aggressively handled after timeout.
+		 */
+		timespec_add_ms(&b->tv_dequeue, 3000);
 	}
 	pthread_mutex_unlock(&md->lockList);
 
@@ -639,6 +679,7 @@ int ipcvideo_dump_buffer(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s *buf)
 	printf("state %s\n",
 		buf->state == BUF_UNDEFINED ? "UNDEFINED" :
 		buf->state == BUF_FREE ? "FREE" :
+		buf->state == BUF_LOST ? "LOST" :
 		buf->state == BUF_BUSY ? "BUSY" : "?");
 
 	return KLAPI_OK;

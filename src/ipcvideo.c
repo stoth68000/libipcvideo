@@ -660,6 +660,7 @@ int ipcvideo_dump_metadata(struct ipcvideo_s *ctx)
 	printf(" .buflen  = 0x%x\n", md->buflen);
 	printf(" .freeCnt = %d\n", md->freeList.count);
 	printf(" .busyCnt = %d\n", md->busyList.count);
+	printf(" .lost    = %lld\n", md->stats.lost_recycled);
 	printf(" .stats\n");
 	printf("  .frames_in  = %lld\n", md->stats.in.totalFrames);
 	printf("   .latency   = %d (ms)\n", md->stats.in.latencyMs);

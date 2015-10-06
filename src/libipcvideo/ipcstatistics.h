@@ -12,6 +12,7 @@ struct ipcvideo_statistics_s
 		unsigned int FPS;
         	unsigned long long starvation;
 	} in, out;
+	unsigned long long lost_recycled;
 
 	struct timeval timeslots[16];
 } __attribute__ ((__packed__));

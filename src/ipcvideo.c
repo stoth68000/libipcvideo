@@ -73,10 +73,15 @@ static int isValidFourCC(unsigned int fourcc)
 	}
 }
 
+#define TIMESPEC_AFTER(a, b) \
+	(((a).tv_sec == (b).tv_sec) ?	\
+	((a).tv_nsec > (b).tv_nsec) :	\
+	((a).tv_sec > (b).tv_sec))
+
 /* Generate the current time and add ms milliseconds to it */
 static void timespec_add_ms(struct timespec *ts, int ms)
 {
-	unsigned long long us = ms * 1000000;
+	unsigned long long us = ms * 1000000LL;
 
 	/* Get the current time and add ms to is */
 	struct timeval tv;
@@ -87,10 +92,10 @@ static void timespec_add_ms(struct timespec *ts, int ms)
 	ts->tv_nsec = tv.tv_usec * 1000;
 
 	/* Do the math and deal with the nsec wrap */
-	ts->tv_sec += (us / 1000000000);
-	ts->tv_nsec += (us % 1000000000);
-	ts->tv_sec += (ts->tv_nsec / 1000000000);
-	ts->tv_nsec %= 1000000000;
+	ts->tv_sec += (us / 1000000000LL);
+	ts->tv_nsec += (us % 1000000000LL);
+	ts->tv_sec += (ts->tv_nsec / 1000000000LL);
+	ts->tv_nsec %= 1000000000LL;
 }
 
 int ipcvideo_context_create(struct ipcvideo_s **ctx)

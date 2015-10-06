@@ -438,11 +438,12 @@ int ipcvideo_list_busy_enqueue(struct ipcvideo_s *ctx, struct ipcvideo_buffer_s 
 		if (KLAPI_FAILED(ret))
 			break;
 
-		sprintf(str, "out#: %3lld fps: %3d ms: %3d urun: %3lld",
+		sprintf(str, "out#: %3lld fps: %3d ms: %3d urun: %3lld lost: %lld",
 			md->stats.out.totalFrames,
 			md->stats.out.FPS,
 			md->stats.out.latencyMs,
-			md->stats.out.starvation);
+			md->stats.out.starvation,
+			md->stats.lost_recycled);
 		ret = ipcvideo_display_render_string(&dctx, (unsigned char*)str, strlen(str), 0, 11);
 		if (KLAPI_FAILED(ret))
 			break;

@@ -100,4 +100,7 @@ int ipcvideo_metadata_set_osd(struct ipcvideo_s *ctx, int enable);
 /* Reset the in/out frame counts */
 int ipcvideo_statistics_reset(struct ipcvideo_s *ctx);
 
+/* Get version information of libipcvideo in runtime */
+const char *ipcvideo_get_version(void);
+
 #endif // IPCVIDEO_H

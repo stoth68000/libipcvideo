@@ -1,5 +1,6 @@
 #include <libipcvideo/ipcvideo.h>
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -832,4 +833,11 @@ int ipcvideo_statistics_reset(struct ipcvideo_s *ctx)
 	ipcstatistics_reset(&md->stats);
 
 	return KLAPI_OK;
+}
+
+const char *
+ipcvideo_get_version(void)
+{
+    static const char *version_str = PACKAGE_VERSION;
+    return version_str;
 }
